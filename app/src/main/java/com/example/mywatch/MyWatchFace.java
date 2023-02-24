@@ -112,6 +112,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private Paint mMinutePaint;
         private Paint mSecondPaint;
         private Paint mTickAndCirclePaint;
+        private Paint mIndexPaint;
         private Paint mBackgroundPaint;
         private Bitmap mBackgroundBitmap;
         private Bitmap mGrayBackgroundBitmap;
@@ -136,10 +137,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void initializeBackground() {
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
-            mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.watchface_service_bg);
+            mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.image_space_dark);
 
             /* Extracts colors from background image to improve watchface style. */
-            Palette.from(mBackgroundBitmap).generate(new Palette.PaletteAsyncListener() {
+            /*Palette.from(mBackgroundBitmap).generate(new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
                     if (palette != null) {
@@ -149,7 +150,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         updateWatchHandStyle();
                     }
                 }
-            });
+            });*/
         }
 
         private void initializeWatchFace() {
@@ -163,7 +164,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mHourPaint.setStrokeWidth(HOUR_STROKE_WIDTH);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
-            mHourPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+            mHourPaint.setShadowLayer(SHADOW_RADIUS, 2, 2, mWatchHandShadowColor);
 
             mMinutePaint = new Paint();
             mMinutePaint.setColor(mWatchHandColor);
@@ -185,6 +186,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mTickAndCirclePaint.setAntiAlias(true);
             mTickAndCirclePaint.setStyle(Paint.Style.STROKE);
             mTickAndCirclePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+
+            mIndexPaint = new Paint();
+            //mIndexPaint.setTextSize(15);
+            mIndexPaint.setColor(mWatchHandColor);
+            mIndexPaint.setAntiAlias(true);
         }
 
         @Override
@@ -246,7 +252,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mTickAndCirclePaint.setAntiAlias(true);
 
                 mHourPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
-                mMinutePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
+                mMinutePaint.setShadowLayer(SHADOW_RADIUS, 2, 2, mWatchHandShadowColor);
                 mSecondPaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
                 mTickAndCirclePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
             }
@@ -372,17 +378,33 @@ public class MyWatchFace extends CanvasWatchFaceService {
              * cases where you want to allow users to select their own photos, this dynamically
              * creates them on top of the photo.
              */
-            float innerTickRadius = mCenterX - 10;
+            /*float innerTickRadius = mCenterX - 10;
             float outerTickRadius = mCenterX;
-            for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
+            int tickValue;
+            for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
+                float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
                 float innerX = (float) Math.sin(tickRot) * innerTickRadius;
                 float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                 float outerX = (float) Math.sin(tickRot) * outerTickRadius;
                 float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
-                canvas.drawLine(mCenterX + innerX, mCenterY + innerY,
-                        mCenterX + outerX, mCenterY + outerY, mTickAndCirclePaint);
+                if (tickIndex % 5 != 0) {
+                    canvas.drawLine(mCenterX + innerX, mCenterY + innerY,
+                            mCenterX + outerX, mCenterY + outerY, mTickAndCirclePaint);
+                }
+                } else {
+                    tickValue = tickIndex/5;
+                    if (tickIndex == 0) {
+                        tickValue = 12;
+                    }
+                    canvas.drawText(String.valueOf(tickValue), mCenterX + innerX, mCenterY + innerY, mBazelPaint);
+                };
+            }*/
+
+            if (!mAmbient) {
+                //canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.index_modern1),0,0,mIndexPaint);
+                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.index_modern2), 0, 0, mIndexPaint);
             }
+
 
             /*
              * These calculations reflect the rotation in degrees per unit of time, e.g.,
@@ -422,7 +444,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
              * Ensure the "seconds" hand is drawn only when we are in interactive mode.
              * Otherwise, we only update the watch face once a minute.
              */
-            if (!mAmbient) {
+            /*if (!mAmbient) {
                 canvas.rotate(secondsRotation - minutesRotation, mCenterX, mCenterY);
                 canvas.drawLine(
                         mCenterX,
@@ -431,7 +453,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         mCenterY - mSecondHandLength,
                         mSecondPaint);
 
-            }
+            }*/
             canvas.drawCircle(
                     mCenterX,
                     mCenterY,
